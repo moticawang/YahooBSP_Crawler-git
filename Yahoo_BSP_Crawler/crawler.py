@@ -14,6 +14,7 @@ YahooBSP_log = lib_core_log(name="YahooBSP")
 class YahooBestSellProductCrawler(object):
 
     def __init__(self):
+        YahooBSP_log.logger.debug("------ Start Yahoo BSP crawler -----")
         self.parse_start_url()        
         
     def format_category_information(self, response):

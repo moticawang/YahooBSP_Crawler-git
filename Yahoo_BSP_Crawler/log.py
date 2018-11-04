@@ -17,9 +17,8 @@ class lib_core_log():
     def __init__(self, name):
         level = get_log_level()
         logging.basicConfig(level=level,
-                            format = '%(asctime)s [%(name)s] [%(lineno)s] [%(levelname)s] %(message)s',
-                            handlers = [logging.FileHandler(name+'.log', 'w', 'utf-8'),]
-                            )      
+                            format = '%(asctime)s [%(name)s] [%(lineno)s] [%(levelname)s] %(message)s',                            
+                            filename = name + '.log'                            )      
         self.logger = logging.getLogger(name)
         self.logger.setLevel(getattr(logging, level))
         # Setup Handler
