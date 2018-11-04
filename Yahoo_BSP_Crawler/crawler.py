@@ -85,6 +85,7 @@ class YahooBestSellProductCrawler(object):
             bsp_data = bsp_data + each_bsp_data
             
         bsp_data = pd.DataFrame(bsp_data)
+        YahooBSP_log.logger.debug("number of BSP data : %s" % len(bsp_data.index))
         
         self.export_bsp_to_csv_and_excel(bsp_data)
         
