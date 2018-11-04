@@ -11,6 +11,6 @@
 
 
 ##### 執行範例
-`cd YahooBSP_Crawler
+`cd YahooBSP_Crawler`
 
 `python crawler.py`
