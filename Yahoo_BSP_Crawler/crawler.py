@@ -15,7 +15,44 @@ class YahooBestSellProductCrawler(object):
 
     def __init__(self):
         YahooBSP_log.logger.debug("------ Start Yahoo BSP crawler -----")
-        self.parse_start_url()        
+        self.start_parse_url()
+
+    def start_parse_url(self):
+
+        bsp_data = list()
+        for cid in range(0,len(CATEGORY_ID_LIST),10):
+            
+            target_url = START_URL +','.join(map(str, CATEGORY_ID_LIST[cid:cid+10]))
+            
+            YahooBSP_log.logger.debug("Processing url %s" % target_url)
+        
+            response = requests.get(target_url).json()
+            
+            category_information = self.format_category_information(response)
+            
+            each_bsp_data = self.fetch_bsp_data(response, category_information)
+            
+            bsp_data = bsp_data + each_bsp_data
+            
+        bsp_data = pd.DataFrame(bsp_data)
+        YahooBSP_log.logger.debug("number of BSP data : %s" % len(bsp_data.index))
+        
+        self.export_bsp_to_csv_and_excel(bsp_data)
+        
+        if DB_ENABLE :
+            try:
+                db_conn = psycopg2.connect(database=DB_DBNAME, user=DB_USER, password=DB_PWD, host=DB_HOST, port=DB_PORT)
+                YahooBSP_log.logger.debug("Connect database succeed")
+            except:
+                YahooBSP_log.logger.error("Connect database failed")   
+            else:
+                change_dsp_data= self.fetch_latest_bsp_and_compare(db_conn, bsp_data)
+                YahooBSP_log.logger.debug("number of changed BSP data : %s" % len(change_dsp_data.index))
+                if len(change_dsp_data.index) :
+                    rst = self.write_bsp_change_to_db(db_conn, change_dsp_data)                    
+                db_conn.close()          
+                
+        return bsp_data.to_json(orient='records')
         
     def format_category_information(self, response):
     
@@ -68,43 +105,6 @@ class YahooBestSellProductCrawler(object):
                 writer.save()
         if EXPORT_TO_CSV:
             export_csv = bsp_data.to_csv("yahooBSP_csv_output.csv",index = None, header=True)
-
-    def parse_start_url(self):
-
-        bsp_data = list()
-        for cid in range(0,len(CATEGORY_ID_LIST),10):
-            
-            target_url = START_URL +','.join(map(str, CATEGORY_ID_LIST[cid:cid+10]))
-            
-            YahooBSP_log.logger.debug("Processing url %s" % target_url)
-        
-            response = requests.get(target_url).json()
-            
-            category_information = self.format_category_information(response)
-            
-            each_bsp_data = self.fetch_bsp_data(response, category_information)
-            
-            bsp_data = bsp_data + each_bsp_data
-            
-        bsp_data = pd.DataFrame(bsp_data)
-        YahooBSP_log.logger.debug("number of BSP data : %s" % len(bsp_data.index))
-        
-        self.export_bsp_to_csv_and_excel(bsp_data)
-        
-        if DB_ENABLE :
-            try:
-                db_conn = psycopg2.connect(database=DB_DBNAME, user=DB_USER, password=DB_PWD, host=DB_HOST, port=DB_PORT)
-                YahooBSP_log.logger.debug("Connect database succeed")
-            except:
-                YahooBSP_log.logger.error("Connect database failed")   
-            else:
-                change_dsp_data= self.fetch_latest_bsp_and_compare(db_conn, bsp_data)
-                YahooBSP_log.logger.debug("number of changed BSP data : %s" % len(change_dsp_data.index))
-                if len(change_dsp_data.index) :
-                    rst = self.write_bsp_change_to_db(db_conn, change_dsp_data)                    
-                db_conn.close()          
-                
-        return bsp_data.to_json(orient='records')
 
     def fetch_latest_bsp_and_compare(self, db_conn, bsp_data):
         
