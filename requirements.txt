@@ -1,0 +1,7 @@
+beautifulsoup4==4.6.3
+configobj==5.0.6
+openpyxl==2.5.9
+pandas==0.23.0
+psycopg2==2.7.5
+requests==2.20.0
+
