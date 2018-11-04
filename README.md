@@ -11,5 +11,5 @@
 
 
 ##### 執行範例
-'cd PttWebCrawler
-python crawler.py -b PublicServan -i 100 200'
+`cd PttWebCrawler
+python crawler.py -b PublicServan -i 100 200`
