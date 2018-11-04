@@ -1,16 +1,25 @@
 # YahooBSP_Crawler-git
 
 
-##### settings.py 參數說明
-> This is a blockquote with two paragraphs. Lorem ipsum dolor sit amet,
-> consectetuer adipiscing elit. Aliquam hendrerit mi posuere lectus.
-> Vestibulum enim wisi, viverra nec, fringilla in, laoreet vitae, risus.
-> 
-> Donec sit amet nisl. Aliquam semper ipsum sit amet velit. Suspendisse
-> id sem consectetuer libero luctus adipiscing.
-
-
 ##### 執行範例
 `cd YahooBSP_Crawler`
 
 `python crawler.py`
+
+##### 輸出
+CSV
+EXCEL
+
+##### Query interface for crawled data
+你可使用psql或是pgAdmin tool連線到PostgreSQL database來下SQL query
+AWS RDS-PostgreSQL instance
+DB_HOST = 'target-postgresql-instance-dms-demo.cdquinixcuuq.us-west-2.rds.amazonaws.com'
+DB_PORT = "5432"
+DB_DBNAME = "crawler_database"
+DB_USER = "viewer"
+DB_PWD = "viewer123"
+
+取得yahoo BSP資訊
+`SELECT * FROM latest_bsp_summary_v`
+
+##### settings.py 參數設定說明
