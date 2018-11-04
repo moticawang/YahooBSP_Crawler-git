@@ -1,5 +1,4 @@
 # -*- coding: utf8 -*-
-__version__ = 'alpha-1.0'
 
 from bs4 import BeautifulSoup
 import requests
@@ -61,11 +60,13 @@ class YahooBestSellProductCrawler(object):
         return bsp_data
 
     def export_bsp_to_csv_and_excel(self, bsp_data):
-
-        with pd.ExcelWriter('yahooBSP_excel_output.xlsx') as writer:            
-            bsp_data.to_excel(writer,'Sheet1')
-            writer.save()        
-        export_csv = bsp_data.to_csv("yahooBSP_csv_output.csv",index = None, header=True)
+        
+        if EXPORT_TO_EXCEL :    
+            with pd.ExcelWriter('yahooBSP_excel_output.xlsx') as writer:            
+                bsp_data.to_excel(writer,'Sheet1')
+                writer.save()
+        if EXPORT_TO_CSV:
+            export_csv = bsp_data.to_csv("yahooBSP_csv_output.csv",index = None, header=True)
 
     def parse_start_url(self):
 

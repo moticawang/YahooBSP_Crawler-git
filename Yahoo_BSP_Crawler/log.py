@@ -1,14 +1,5 @@
-#*****************************************************************************
-# log.py :
-# Description :
-#       the library for common logging
-#
-# Maintainer: Motica
-#
-# History: (optional)
-#  2018/11/14 created by Motica
-#
-#****************************************************************************/
+# -*- coding: utf-8 -*-
+
 import logging
 from settings import *
 
