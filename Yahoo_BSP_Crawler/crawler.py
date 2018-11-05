@@ -20,27 +20,30 @@ class YahooBestSellProductCrawler(object):
 
     def start_parse_url(self):
 
-        try:
-            bsp_data = list()
-            for cid in range(0,len(CATEGORY_ID_LIST),10):
-                
-                target_url = START_URL +','.join(map(str, CATEGORY_ID_LIST[cid:cid+10]))
-                
-                YahooBSP_log.logger.debug("Processing url %s" % target_url)
+        
+        bsp_data = list()
+        for cid in range(0,len(CATEGORY_ID_LIST),10):
             
+            target_url = START_URL +','.join(map(str, CATEGORY_ID_LIST[cid:cid+10]))
+            
+            YahooBSP_log.logger.debug("Processing url %s" % target_url)
+
+            try:        
                 response = requests.get(target_url).json()
-                
+            except Exception as e:
+                YahooBSP_log.logger.error("request failed : " + str(e))
+            else:            
                 category_information = self.format_category_information(response)
-                
+            
                 each_bsp_data = self.fetch_bsp_data(response, category_information)
-                
+            
                 bsp_data = bsp_data + each_bsp_data
-        except Exception as e:
-            YahooBSP_log.logger.error("request failed : " + str(e))
-            sys.exit(1)
                     
         bsp_data = pd.DataFrame(bsp_data)
         YahooBSP_log.logger.debug("number of BSP data : %s" % len(bsp_data.index))
+
+        if len(bsp_data.index)==0:
+            sys.exit(1)
         
         self.export_bsp_to_csv_and_excel(bsp_data)
         
