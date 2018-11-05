@@ -3,6 +3,7 @@
 from bs4 import BeautifulSoup
 import requests
 import time
+import sys
 import json
 import psycopg2
 import pandas as pd
@@ -19,21 +20,25 @@ class YahooBestSellProductCrawler(object):
 
     def start_parse_url(self):
 
-        bsp_data = list()
-        for cid in range(0,len(CATEGORY_ID_LIST),10):
+        try:
+            bsp_data = list()
+            for cid in range(0,len(CATEGORY_ID_LIST),10):
+                
+                target_url = START_URL +','.join(map(str, CATEGORY_ID_LIST[cid:cid+10]))
+                
+                YahooBSP_log.logger.debug("Processing url %s" % target_url)
             
-            target_url = START_URL +','.join(map(str, CATEGORY_ID_LIST[cid:cid+10]))
-            
-            YahooBSP_log.logger.debug("Processing url %s" % target_url)
-        
-            response = requests.get(target_url).json()
-            
-            category_information = self.format_category_information(response)
-            
-            each_bsp_data = self.fetch_bsp_data(response, category_information)
-            
-            bsp_data = bsp_data + each_bsp_data
-            
+                response = requests.get(target_url).json()
+                
+                category_information = self.format_category_information(response)
+                
+                each_bsp_data = self.fetch_bsp_data(response, category_information)
+                
+                bsp_data = bsp_data + each_bsp_data
+        except Exception as e:
+            YahooBSP_log.logger.error("request failed : " + str(e))
+            sys.exit(1)
+                    
         bsp_data = pd.DataFrame(bsp_data)
         YahooBSP_log.logger.debug("number of BSP data : %s" % len(bsp_data.index))
         
@@ -43,8 +48,8 @@ class YahooBestSellProductCrawler(object):
             try:
                 db_conn = psycopg2.connect(database=DB_DBNAME, user=DB_USER, password=DB_PWD, host=DB_HOST, port=DB_PORT)
                 YahooBSP_log.logger.debug("Connect database succeed")
-            except:
-                YahooBSP_log.logger.error("Connect database failed")   
+            except Exception as e:
+                YahooBSP_log.logger.error("Connect database failed" + str(e))   
             else:
                 change_dsp_data= self.fetch_latest_bsp_and_compare(db_conn, bsp_data)
                 YahooBSP_log.logger.debug("number of changed BSP data : %s" % len(change_dsp_data.index))
@@ -128,7 +133,7 @@ class YahooBestSellProductCrawler(object):
             db_conn.commit()
             YahooBSP_log.logger.debug("Write to DB succeed")
         except Exception as e:            
-            YahooBSP_log.logger.error("Write to DB failed : " % str(e))
+            YahooBSP_log.logger.error("Write to DB failed : " + str(e))
             return False
 
         return True
