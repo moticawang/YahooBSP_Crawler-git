@@ -19,7 +19,6 @@ class YahooBestSellProductCrawler(object):
         self.start_parse_url()
 
     def start_parse_url(self):
-
         
         bsp_data = list()
         for cid in range(0,len(CATEGORY_ID_LIST),10):
@@ -52,13 +51,15 @@ class YahooBestSellProductCrawler(object):
                 db_conn = psycopg2.connect(database=DB_DBNAME, user=DB_USER, password=DB_PWD, host=DB_HOST, port=DB_PORT)
                 YahooBSP_log.logger.debug("Connect database succeed")
             except Exception as e:
-                YahooBSP_log.logger.error("Connect database failed" + str(e))   
+                YahooBSP_log.logger.error("Connect database failed" + str(e))
             else:
                 change_dsp_data= self.fetch_latest_bsp_and_compare(db_conn, bsp_data)
                 YahooBSP_log.logger.debug("number of changed BSP data : %s" % len(change_dsp_data.index))
                 if len(change_dsp_data.index) :
-                    rst = self.write_bsp_change_to_db(db_conn, change_dsp_data)                    
-                db_conn.close()          
+                    rst = self.write_bsp_change_to_db(db_conn, change_dsp_data)                
+            finally:
+                if 'db_conn' in locals():
+                    db_conn.close()
                 
         return bsp_data.to_json(orient='records')
         
